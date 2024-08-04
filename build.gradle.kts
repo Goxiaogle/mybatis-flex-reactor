@@ -32,6 +32,7 @@ subprojects {
         pom {
             name = "Mybatis Flex Reactor Extensions"
             description = "Mybatis Flex 响应式扩展包"
+            url = "https://github.com/Goxiaogle/mybatis-flex-reactor"
             licenses {
                 license {
                     name = "The Apache License, Version 2.0"
@@ -44,6 +45,11 @@ subprojects {
                     name = "Juxest"
                     email = "1477007136@qq.com"
                 }
+            }
+            scm {
+                url = "https://github.com/Goxiaogle/mybatis-flex-reactor"
+                connection = "scm:git:https://github.com/Goxiaogle/mybatis-flex-reactor.git"
+                developerConnection = "scm:git:https://github.com/Goxiaogle/mybatis-flex-reactor.git"
             }
         }
 
