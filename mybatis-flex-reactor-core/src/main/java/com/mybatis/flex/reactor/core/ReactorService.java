@@ -51,13 +51,24 @@ public interface ReactorService<Entity> {
     IService<Entity> getBlockService();
 
     /**
-     * 保存实体类对象数据
+     * 保存实体类对象数据（忽略空值）
      *
      * @param entity 实体类对象
      * @return 是否保存成功
      */
     default Mono<Boolean> save(Entity entity) {
-        return Mono.just(SqlUtil.toBool(getMapper().insert(entity)));
+        return save(entity, true);
+    }
+
+    /**
+     * 保存实体类对象数据
+     *
+     * @param entity 实体类对象
+     * @param ignoreNulls 是否忽略空值
+     * @return 是否保存成功
+     */
+    default Mono<Boolean> save(Entity entity, boolean ignoreNulls) {
+        return Mono.just(SqlUtil.toBool(getMapper().insert(entity, ignoreNulls)));
     }
 
     /**
