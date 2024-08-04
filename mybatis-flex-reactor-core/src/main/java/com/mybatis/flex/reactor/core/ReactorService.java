@@ -14,16 +14,13 @@ import com.mybatisflex.core.update.UpdateChain;
 import com.mybatisflex.core.util.ClassUtil;
 import com.mybatisflex.core.util.SqlUtil;
 import org.apache.ibatis.cursor.Cursor;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * 响应式 Service 接口
