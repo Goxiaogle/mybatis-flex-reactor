@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 
 public class ReactorUtils {
     /**
@@ -50,13 +51,13 @@ public class ReactorUtils {
     /**
      * 将 Cursor 转为 Flux
      *
-     * @param cursor mybatis 游标对象
+     * @param supplier mybatis 游标对象（此处请传入一个函数，如果是将游标变量传入会导致抛出游标已关闭异常）
      * @param <T>    游标泛型
      * @return Flux
      */
-    public static <T> Flux<T> cursorToFlux(Cursor<T> cursor) {
+    public static <T> Flux<T> cursorToFlux(Supplier<Cursor<T>> supplier) {
         return Flux.create(emitter -> Db.tx(() -> {
-            try (cursor) {
+            try(Cursor<T> cursor = supplier.get()) {
                 for (T it : cursor) {
                     emitter.next(it);
                 }

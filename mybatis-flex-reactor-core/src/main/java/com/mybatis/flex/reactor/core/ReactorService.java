@@ -487,7 +487,7 @@ public interface ReactorService<Entity> {
      * @return 数据列表
      */
     default Flux<Entity> list(QueryWrapper query) {
-        return ReactorUtils.cursorToFlux(getMapper().selectCursorByQuery(query));
+        return ReactorUtils.cursorToFlux(() -> getMapper().selectCursorByQuery(query));
     }
 
     /**
@@ -499,7 +499,7 @@ public interface ReactorService<Entity> {
      * @return 数据列表
      */
     default <AS> Flux<AS> listAs(QueryWrapper query, Class<AS> asType) {
-        return ReactorUtils.cursorToFlux(getMapper().selectCursorByQueryAs(query, asType));
+        return ReactorUtils.cursorToFlux(() -> getMapper().selectCursorByQueryAs(query, asType));
     }
 
     /**
