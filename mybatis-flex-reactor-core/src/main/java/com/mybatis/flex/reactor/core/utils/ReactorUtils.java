@@ -17,7 +17,17 @@ public class ReactorUtils {
      * @return 任务生命周期对象
      */
     public static Disposable runAsync(Runnable runnable) {
-        return Mono.fromRunnable(runnable)
+        return runAsync(Mono.fromRunnable(runnable));
+    }
+
+    /**
+     * 异步执行 Mono（弹性调度 | 忽略值）
+     *
+     * @param mono 目标 mono
+     * @return 任务生命周期对象
+     */
+    public static Disposable runAsync(Mono<Object> mono) {
+        return mono
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
