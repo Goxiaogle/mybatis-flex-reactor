@@ -60,12 +60,16 @@ public interface ReactorService<Entity> {
     /**
      * 保存实体类对象数据
      *
-     * @param entity 实体类对象
+     * @param entity      实体类对象
      * @param ignoreNulls 是否忽略空值
      * @return 是否保存成功
      */
     default Mono<Boolean> save(Entity entity, boolean ignoreNulls) {
-        return Mono.just(SqlUtil.toBool(getMapper().insert(entity, ignoreNulls)));
+        return Mono.create(emitter ->
+                emitter.success(
+                        SqlUtil.toBool(getMapper().insert(entity, ignoreNulls))
+                )
+        );
     }
 
     /**
@@ -106,7 +110,11 @@ public interface ReactorService<Entity> {
      * @return 是否保存成功
      */
     default Mono<Boolean> saveOrUpdate(Entity entity, boolean ignoreNulls) {
-        return Mono.just(SqlUtil.toBool(getMapper().insertOrUpdate(entity, ignoreNulls)));
+        return Mono.create(emitter ->
+                emitter.success(
+                        SqlUtil.toBool(getMapper().insertOrUpdate(entity, ignoreNulls))
+                )
+        );
     }
 
     /**
@@ -167,7 +175,11 @@ public interface ReactorService<Entity> {
      * @return 是否删除成功
      */
     default Mono<Boolean> remove(QueryWrapper query) {
-        return Mono.just(SqlUtil.toBool(getMapper().deleteByQuery(query)));
+        return Mono.create(emitter ->
+                emitter.success(
+                        SqlUtil.toBool(getMapper().deleteByQuery(query))
+                )
+        );
     }
 
     /**
@@ -187,7 +199,11 @@ public interface ReactorService<Entity> {
      * @return 是否删除成功
      */
     default Mono<Boolean> removeById(Entity entity) {
-        return Mono.just(SqlUtil.toBool(getMapper().delete(entity)));
+        return Mono.create(emitter ->
+                emitter.success(
+                        SqlUtil.toBool(getMapper().delete(entity))
+                )
+        );
     }
 
     /**
@@ -197,7 +213,9 @@ public interface ReactorService<Entity> {
      * @return 是否删除成功
      */
     default Mono<Boolean> removeById(Serializable id) {
-        return Mono.just(SqlUtil.toBool(getMapper().deleteById(id)));
+        return Mono.create(emitter ->
+                emitter.success(SqlUtil.toBool(getMapper().deleteById(id)))
+        );
     }
 
     /**
@@ -207,7 +225,9 @@ public interface ReactorService<Entity> {
      * @return 是否删除成功
      */
     default Mono<Boolean> removeByIds(Collection<Serializable> ids) {
-        return Mono.just(SqlUtil.toBool(getMapper().deleteBatchByIds(ids)));
+        return Mono.create(emitter ->
+                emitter.success(SqlUtil.toBool(getMapper().deleteBatchByIds(ids)))
+        );
     }
 
     /**
@@ -231,7 +251,11 @@ public interface ReactorService<Entity> {
      * @return 是否更新成功
      */
     default Mono<Boolean> updateById(Entity entity, boolean ignoreNulls) {
-        return Mono.just(SqlUtil.toBool(getMapper().update(entity, ignoreNulls)));
+        return Mono.create(emitter ->
+                emitter.success(
+                        SqlUtil.toBool(getMapper().update(entity, ignoreNulls))
+                )
+        );
     }
 
     /**
@@ -274,7 +298,11 @@ public interface ReactorService<Entity> {
      * @return 是否更新成功
      */
     default Mono<Boolean> update(Entity entity, QueryWrapper query) {
-        return Mono.just(SqlUtil.toBool(getMapper().updateByQuery(entity, query)));
+        return Mono.create(emitter ->
+                emitter.success(
+                        SqlUtil.toBool(getMapper().updateByQuery(entity, query))
+                )
+        );
     }
 
     /**
@@ -324,7 +352,9 @@ public interface ReactorService<Entity> {
      * @return 查询结果
      */
     default Mono<Entity> getById(Serializable id) {
-        return Mono.justOrEmpty(getMapper().selectOneById(id));
+        return Mono.create(emitter ->
+                emitter.success(getMapper().selectOneById(id))
+        );
     }
 
     /**
@@ -334,7 +364,11 @@ public interface ReactorService<Entity> {
      * @return 查询结果
      */
     default Mono<Entity> getById(Entity entity) {
-        return Mono.justOrEmpty(getMapper().selectOneByEntityId(entity));
+        return Mono.create(emitter ->
+                emitter.success(
+                        getMapper().selectOneByEntityId(entity)
+                )
+        );
     }
 
     /**
@@ -344,7 +378,11 @@ public interface ReactorService<Entity> {
      * @return 查询结果
      */
     default Mono<Entity> getOne(QueryWrapper query) {
-        return Mono.justOrEmpty(getMapper().selectOneByQuery(query));
+        return Mono.create(emitter ->
+                emitter.success(
+                        getMapper().selectOneByQuery(query)
+                )
+        );
     }
 
     /**
@@ -356,7 +394,11 @@ public interface ReactorService<Entity> {
      * @return 查询结果
      */
     default <AS> Mono<AS> getOneAs(QueryWrapper query, Class<AS> asType) {
-        return Mono.justOrEmpty(getMapper().selectOneByQueryAs(query, asType));
+        return Mono.create(emitter ->
+                emitter.success(
+                        getMapper().selectOneByQueryAs(query, asType)
+                )
+        );
     }
 
     /**
@@ -366,7 +408,11 @@ public interface ReactorService<Entity> {
      * @return 数据值
      */
     default Mono<Object> getObject(QueryWrapper query) {
-        return Mono.justOrEmpty(getMapper().selectObjectByQuery(query));
+        return Mono.create(emitter ->
+                emitter.success(
+                        getMapper().selectObjectByQuery(query)
+                )
+        );
     }
 
     /**
@@ -378,7 +424,11 @@ public interface ReactorService<Entity> {
      * @return 数据值
      */
     default <AS> Mono<AS> getObjectAs(QueryWrapper query, Class<AS> asType) {
-        return Mono.justOrEmpty(getMapper().selectObjectByQueryAs(query, asType));
+        return Mono.create(emitter ->
+                emitter.success(
+                        getMapper().selectObjectByQueryAs(query, asType)
+                )
+        );
     }
 
     /**
@@ -388,7 +438,11 @@ public interface ReactorService<Entity> {
      * @return 数据列表
      */
     default Mono<List<Object>> getObjectListOnce(QueryWrapper query) {
-        return Mono.justOrEmpty(getMapper().selectObjectListByQuery(query));
+        return Mono.create(emitter ->
+                emitter.success(
+                        getMapper().selectObjectListByQuery(query)
+                )
+        );
     }
 
     /**
@@ -400,7 +454,11 @@ public interface ReactorService<Entity> {
      * @return 数据列表
      */
     default <AS> Mono<List<AS>> getObjectListOnceAs(QueryWrapper query, Class<AS> asType) {
-        return Mono.justOrEmpty(getMapper().selectObjectListByQueryAs(query, asType));
+        return Mono.create(emitter ->
+                emitter.success(
+                        getMapper().selectObjectListByQueryAs(query, asType)
+                )
+        );
     }
 
     /**
@@ -451,7 +509,9 @@ public interface ReactorService<Entity> {
      * @return 数据列表（Mono）
      */
     default Mono<List<Entity>> listOnceByIds(Collection<Serializable> ids) {
-        return Mono.just(getMapper().selectListByIds(ids));
+        return Mono.create(emitter ->
+                emitter.success(getMapper().selectListByIds(ids))
+        );
     }
 
     /**
@@ -481,11 +541,13 @@ public interface ReactorService<Entity> {
      * @return 是否存在
      */
     default Mono<Boolean> exists(QueryCondition query) {
-        return Mono.just(
-                !getMapper().selectObjectListByQuery(
-                        QueryWrapper.create().where(query)
-                                .limit(1)
-                ).isEmpty()
+        return Mono.create(emitter ->
+                emitter.success(
+                        !getMapper().selectObjectListByQuery(
+                                QueryWrapper.create().where(query)
+                                        .limit(1)
+                        ).isEmpty()
+                )
         );
     }
 
@@ -505,7 +567,11 @@ public interface ReactorService<Entity> {
      * @return 数据总数
      */
     default Mono<Long> count(QueryCondition query) {
-        return Mono.just(getMapper().selectCountByQuery(QueryWrapper.create().where(query)));
+        return Mono.create(emitter ->
+                emitter.success(
+                        getMapper().selectCountByQuery(QueryWrapper.create().where(query))
+                )
+        );
     }
 
     /**
@@ -515,7 +581,9 @@ public interface ReactorService<Entity> {
      * @return 数据总数
      */
     default Mono<Long> count(QueryWrapper query) {
-        return Mono.just(getMapper().selectCountByQuery(query));
+        return Mono.create(emitter ->
+                emitter.success(getMapper().selectCountByQuery(query))
+        );
     }
 
     /**
@@ -560,7 +628,9 @@ public interface ReactorService<Entity> {
      * @return 分页对象（Mono）
      */
     default <AS> Mono<Page<AS>> pageOnceAs(Page<AS> page, QueryWrapper query, Class<AS> asType) {
-        return Mono.just(getMapper().paginateAs(page, query, asType));
+        return Mono.create(emitter ->
+                emitter.success(getMapper().paginateAs(page, query, asType))
+        );
     }
 
     /**
