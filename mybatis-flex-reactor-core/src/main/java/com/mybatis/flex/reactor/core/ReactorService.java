@@ -1,5 +1,6 @@
 package com.mybatis.flex.reactor.core;
 
+import com.mybatis.flex.reactor.core.utils.ReactorUtils;
 import com.mybatis.flex.reactor.core.wrapper.UpdateResult;
 import com.mybatisflex.core.BaseMapper;
 import com.mybatisflex.core.exception.FlexExceptions;
@@ -13,7 +14,6 @@ import com.mybatisflex.core.service.IService;
 import com.mybatisflex.core.update.UpdateChain;
 import com.mybatisflex.core.util.ClassUtil;
 import com.mybatisflex.core.util.SqlUtil;
-import org.apache.ibatis.cursor.Cursor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -134,6 +134,7 @@ public interface ReactorService<Entity> {
                 int rows = m.insertOrUpdate(e, ignoreNulls);
                 emitter.next(new UpdateResult<>(rows, e));
             });
+            emitter.complete();
         });
     }
 
@@ -428,20 +429,7 @@ public interface ReactorService<Entity> {
      * @return 数据列表
      */
     default Flux<Entity> list(QueryWrapper query) {
-        return Flux.create(emitter -> {
-            Db.tx(() -> {
-                try (Cursor<Entity> cursor = getMapper().selectCursorByQuery(query)) {
-                    for (Entity it : cursor) {
-                        emitter.next(it);
-                    }
-                } catch (Exception e) {
-                    emitter.error(e);
-                    return false;
-                }
-                emitter.complete();
-                return true;
-            });
-        });
+        return ReactorUtils.cursorToFlux(getMapper().selectCursorByQuery(query));
     }
 
     /**
@@ -453,20 +441,7 @@ public interface ReactorService<Entity> {
      * @return 数据列表
      */
     default <AS> Flux<AS> listAs(QueryWrapper query, Class<AS> asType) {
-        return Flux.create(emitter -> {
-            Db.tx(() -> {
-                try (Cursor<AS> cursor = getMapper().selectCursorByQueryAs(query, asType)) {
-                    for (AS it : cursor) {
-                        emitter.next(it);
-                    }
-                } catch (Exception e) {
-                    emitter.error(e);
-                    return false;
-                }
-                emitter.complete();
-                return true;
-            });
-        });
+        return ReactorUtils.cursorToFlux(getMapper().selectCursorByQueryAs(query, asType));
     }
 
     /**

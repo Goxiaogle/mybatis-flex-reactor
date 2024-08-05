@@ -1,6 +1,9 @@
 package com.mybatis.flex.reactor.core.utils;
 
+import com.mybatisflex.core.row.Db;
+import org.apache.ibatis.cursor.Cursor;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -32,5 +35,27 @@ public class ReactorUtils {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 将 Cursor 转为 Flux
+     *
+     * @param cursor mybatis 游标对象
+     * @param <T>    游标泛型
+     * @return Flux
+     */
+    public static <T> Flux<T> cursorToFlux(Cursor<T> cursor) {
+        return Flux.create(emitter -> Db.tx(() -> {
+            try (cursor) {
+                for (T it : cursor) {
+                    emitter.next(it);
+                }
+            } catch (Exception e) {
+                emitter.error(e);
+                return false;
+            }
+            emitter.complete();
+            return true;
+        }));
     }
 }
