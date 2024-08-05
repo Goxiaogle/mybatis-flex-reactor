@@ -1,9 +1,10 @@
 plugins {
     id("java")
+    id("java-library")
 }
 
 group = "com.juxest"
-version = "0.1"
+version = "0.2"
 
 repositories {
     mavenCentral()
@@ -13,5 +14,5 @@ dependencies {
     // flex
     compileOnly("com.mybatis-flex:mybatis-flex-core:1.9.5")
     // reactor
-    compileOnly("io.projectreactor:reactor-core:3.6.6")
+    api("io.projectreactor:reactor-core:3.6.6")
 }
