@@ -26,7 +26,7 @@ public class ReactorUtils {
      * @param mono 目标 mono
      * @return 任务生命周期对象
      */
-    public static Disposable runAsync(Mono<Object> mono) {
+    public static <T> Disposable runAsync(Mono<T> mono) {
         return mono
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
