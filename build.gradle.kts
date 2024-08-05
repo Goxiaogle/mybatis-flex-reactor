@@ -24,11 +24,13 @@ subprojects {
 
     tasks.javadoc {
         options {
+            isFailOnError = false
             encoding = "UTF-8"
         }
     }
 
     mavenPublishing {
+
         pom {
             name = "Mybatis Flex Reactor Extensions"
             description = "Mybatis Flex 响应式扩展包"
