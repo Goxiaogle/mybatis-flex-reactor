@@ -13,7 +13,7 @@
 // mybatis-flex
 implementation("com.mybatis-flex:mybatis-flex-spring-boot3-starter:1.9.2")
 // mybatis-flex-reactor 拓展
-implementation("com.juxest:mybatis-flex-reactor-spring:0.2.1")
+implementation("com.juxest:mybatis-flex-reactor-spring:0.2.2")
 ```
 2. 继承 ServiceReactorImpl，实现 ReactorService 接口
 ```kotlin
