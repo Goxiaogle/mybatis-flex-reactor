@@ -3,6 +3,7 @@ package com.mybatis.flex.reactor.core;
 import com.mybatis.flex.reactor.core.utils.ReactorUtils;
 import com.mybatis.flex.reactor.core.wrapper.UpdateResult;
 import com.mybatisflex.core.BaseMapper;
+import com.mybatisflex.core.FlexGlobalConfig;
 import com.mybatisflex.core.exception.FlexExceptions;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.CPI;
@@ -13,6 +14,7 @@ import com.mybatisflex.core.row.Db;
 import com.mybatisflex.core.service.IService;
 import com.mybatisflex.core.update.UpdateChain;
 import com.mybatisflex.core.util.ClassUtil;
+import com.mybatisflex.core.util.MapperUtil;
 import com.mybatisflex.core.util.SqlUtil;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -523,6 +525,120 @@ public interface ReactorService<Entity> {
     default Flux<Entity> listByMap(Map<String, Object> query) {
         return list(QueryWrapper.create().where(query));
     }
+
+
+    /**
+     * 获取分页数据
+     *
+     * @param page       分页对象
+     * @param queryTotal 是否使用 count 查询总数并回填到 page 中（仅在 page 的 totalPage 不存在时才查询，当 totalPage 有值时无论该参数是否为 true 都不会再查询）
+     * @return 在该页中的数据
+     */
+    default Flux<Entity> page(Page<Entity> page, boolean queryTotal) {
+        return page(
+                page,
+                QueryWrapper.create(),
+                queryTotal
+        );
+    }
+
+    /**
+     * 获取分页数据
+     *
+     * @param page 分页对象（若未初始化 totalPage 值，会自动使用 count 函数查询并回填到 page 对象中）
+     * @return 在该页中的数据
+     */
+    default Flux<Entity> page(Page<Entity> page) {
+        return page(page, true);
+    }
+
+    /**
+     * 获取分页数据
+     *
+     * @param page       分页对象
+     * @param query      条件
+     * @param queryTotal 是否使用 count 查询总数并回填到 page 中（仅在 page 的 totalPage 不存在时才查询，当 totalPage 有值时无论该参数是否为 true 都不会再查询）
+     * @return 在该页中的数据
+     */
+    default Flux<Entity> page(Page<Entity> page, QueryCondition query, boolean queryTotal) {
+        return page(
+                page,
+                QueryWrapper.create().where(query),
+                queryTotal
+        );
+    }
+
+    /**
+     * 获取分页数据
+     *
+     * @param page  分页对象（若未初始化 totalPage 值，会自动使用 count 函数查询并回填到 page 对象中）
+     * @param query 条件
+     * @return 在该页中的数据
+     */
+    default Flux<Entity> page(Page<Entity> page, QueryCondition query) {
+        return page(page, query, true);
+    }
+
+    /**
+     * 获取分页数据
+     *
+     * @param page  分页对象（若未初始化 totalPage 值，会自动使用 count 函数查询并回填到 page 对象中）
+     * @param query 条件
+     * @return 在该页中的数据
+     */
+    default Flux<Entity> page(Page<Entity> page, QueryWrapper query) {
+        return page(page, query, true);
+    }
+
+    /**
+     * 获取分页数据
+     *
+     * @param page       分页对象
+     * @param query      条件
+     * @param queryTotal 是否使用 count 查询总数并回填到 page 中（仅在 page 的 totalPage 不存在时才查询，当 totalPage 有值时无论该参数是否为 true 都不会再查询）
+     * @return 在该页中的数据
+     */
+    default Flux<Entity> page(Page<Entity> page, QueryWrapper query, boolean queryTotal) {
+        // 为了避免一些序列化框架不使用 setter 方法构建对象，而产生错误的 page 值，所以这里还是需要进行一些处理
+        if(page.getPageNumber() < 1) {
+            page.setPageNumber(1);
+        }
+        if(page.getPageSize() < 1) {
+            page.setPageSize(FlexGlobalConfig.getDefaultConfig().getDefaultPageSize());
+        }
+
+        // ===== 下面的逻辑基本上就是复刻了 MapperUtil#doPaginate 的逻辑 =====
+
+        // 预存一下原始的 limit 信息，因为分页操作逻辑中会修改 limit 信息
+        // 为了防止对用户原始 query 对象造成意外的影响，后续我们需要还原原始的 limit 信息
+        Long limitRows = CPI.getLimitRows(query);
+        Long limitOffset = CPI.getLimitOffset(query);
+        try {
+            // 此处不采用 == INIT_VALUE 的形式，因为前端传来的 totalPage 可能是其它负数值
+            if (page.getTotalPage() < 0 && queryTotal) {
+                // 构建 count 查询条件：根据 needOptimizeCountQuery （是否启用优化查询，默认 true）抉择构建方式
+                QueryWrapper countQueryWrapper = page.needOptimizeCountQuery() ?
+                        // 构建优化的 count 查询条件
+                        MapperUtil.optimizeCountQueryWrapper(query) :
+                        // 构建原始 count 查询条件
+                        MapperUtil.rawCountQueryWrapper(query);
+                // 移除原有 limit，避免出现错误的数据
+                CPI.setLimitRows(countQueryWrapper, null);
+                CPI.setLimitOffset(countQueryWrapper, null);
+                page.setTotalRow(
+                        getMapper().selectCountByQuery(countQueryWrapper)
+                );
+            }
+            return list(
+                    query.limit(page.offset(), page.getPageSize())
+            );
+        } finally {
+            // 还原原有 limit 信息
+            CPI.setLimitRows(query, limitRows);
+            CPI.setLimitOffset(query, limitOffset);
+        }
+    }
+
 
     /**
      * 根据条件查询数据是否存在
