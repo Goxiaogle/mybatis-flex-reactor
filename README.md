@@ -238,8 +238,8 @@ class UserService : ReactorServiceImpl<UserMapper, User>() {
 
     @GetMapping(produces = [MediaType.APPLICATION_NDJSON_VALUE])
     fun fetchUserPage(): Flux<Record<User>> {
-        val userPage = PageInfoRecord<OperationLog>(1, 5)
-        return logService.page(userPage)
+        val userPage = PageInfoRecord<User>(1, 5)
+        return userService.page(userPage)
             .buffer(10)
             // 生成索引
             .index()
@@ -256,7 +256,7 @@ class UserService : ReactorServiceImpl<UserMapper, User>() {
    ```kotlin
    @GetMapping(produces = [MediaType.APPLICATION_NDJSON_VALUE])
    fun test(): Flux<Any> {
-       val userPage = Page.of<OperationLog>(1, 5)
+       val userPage = Page.of<User>(1, 5)
        return (userService.page(userPage) as Flux<Any>)
            .startWith(userPage)
    }
